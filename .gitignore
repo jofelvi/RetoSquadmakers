@@ -1,0 +1,51 @@
+# Ignorar carpetas y archivos específicos del frontend (Node.js/Next.js)
+/frontend/node_modules/
+/frontend/.next/
+/frontend/.env.local # Si no quieres versionar variables de entorno locales
+/frontend/next-env.d.ts # Si es generado y no quieres versionarlo
+/frontend/.eslint.config.mjs # Si es generado o no quieres versionarlo
+/frontend/out/ # Si Next.js genera una carpeta 'out' para el build estático
+/frontend/build/ # Otra carpeta de build común
+
+# Ignorar carpetas y archivos específicos de .NET Core
+# La carpeta 'bin' y 'obj' se generan durante la compilación
+**/bin/
+**/obj/
+
+# Archivos de configuración de usuario de Visual Studio / IDEs
+*.user
+*.suo
+*.vspscc
+*.vssscc
+*.bak
+*.resharper
+*.sln.docstates
+.vs/ # La carpeta .vs es de Visual Studio y se ignora
+
+# Archivos de depuración y logs
+*.log
+*.pdb
+*.pid
+*.tmp
+[Dd]ebug/
+[Rr]elease/
+
+# Archivos de paquetes (NuGet)
+packages/ # Generalmente no se versiona, NuGet las restaura
+
+# Archivos de configuración de lanzamiento/publicación
+*.publishproj
+*.pubxml
+*.pubxml.user
+
+# Archivos específicos del sistema operativo
+.DS_Store # macOS
+Thumbs.db # Windows
+desktop.ini # Windows
+
+# Archivos de configuración que podrías querer ignorar si son específicos del entorno local
+# **CUIDADO CON ESTOS**
+# Si tus appsettings.json tienen información sensible o son únicos por desarrollador,
+# ignora los .Development.json o crea un appsettings.Local.json ignorado.
+# appsettings.Development.json
+# appsettings.json # Generalmente este SÍ se versiona, a menos que tengas una estrategia de config diferente.
