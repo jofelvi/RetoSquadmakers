@@ -51,26 +51,49 @@ public class NotificationProcessorService : BackgroundService
 
     private async Task ProcessPendingNotificationsAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
-        var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
-        var providers = scope.ServiceProvider.GetRequiredService<IEnumerable<INotificationProvider>>();
-        var templateService = scope.ServiceProvider.GetRequiredService<ITemplateService>();
-        var userRepository = scope.ServiceProvider.GetRequiredService<IUsuarioRepository>();
-
-        var pendingNotifications = await notificationRepository.GetPendingNotificationsAsync(50);
+        IEnumerable<Notification> pendingNotifications;
+        
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+            pendingNotifications = await notificationRepository.GetPendingNotificationsAsync(50);
+        }
         
         if (!pendingNotifications.Any())
             return;
 
         _logger.LogInformation("Processing {Count} pending notifications", pendingNotifications.Count());
 
+        // Process each notification with its own scope to avoid DbContext concurrency issues
         var tasks = pendingNotifications.Select(notification => 
-            ProcessSingleNotificationAsync(notification, providers, templateService, userRepository, notificationRepository));
+            ProcessSingleNotificationWithScopeAsync(notification));
 
         await Task.WhenAll(tasks);
     }
 
     private async Task ProcessFailedNotificationsAsync()
+    {
+        IEnumerable<Notification> failedNotifications;
+        
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+            failedNotifications = await notificationRepository.GetFailedNotificationsAsync(3);
+        }
+        
+        if (!failedNotifications.Any())
+            return;
+
+        _logger.LogInformation("Retrying {Count} failed notifications", failedNotifications.Count());
+
+        // Process each notification with its own scope to avoid DbContext concurrency issues
+        var tasks = failedNotifications.Select(notification => 
+            ProcessSingleNotificationWithScopeAsync(notification));
+
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task ProcessSingleNotificationWithScopeAsync(Notification notification)
     {
         using var scope = _serviceProvider.CreateScope();
         var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
@@ -78,17 +101,7 @@ public class NotificationProcessorService : BackgroundService
         var templateService = scope.ServiceProvider.GetRequiredService<ITemplateService>();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUsuarioRepository>();
 
-        var failedNotifications = await notificationRepository.GetFailedNotificationsAsync(3);
-        
-        if (!failedNotifications.Any())
-            return;
-
-        _logger.LogInformation("Retrying {Count} failed notifications", failedNotifications.Count());
-
-        var tasks = failedNotifications.Select(notification => 
-            ProcessSingleNotificationAsync(notification, providers, templateService, userRepository, notificationRepository));
-
-        await Task.WhenAll(tasks);
+        await ProcessSingleNotificationAsync(notification, providers, templateService, userRepository, notificationRepository);
     }
 
     private async Task ProcessSingleNotificationAsync(

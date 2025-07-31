@@ -470,4 +470,5 @@ Este proyecto es parte del RetoSquadmakers y está desarrollado con fines educat
 
 ---
 
-**¡Desarrollado con ❤️ y mucho ☕ para RetoSquadmakers!**
+**¡Desarrollado con ❤️  por jofelvi y mucho ☕ para RetoSquadmakers! sorry por la demora es que cuando le piden a un dev senior un proyecto asi nos ponemos en muchos escenarios y nos ponemos a pensar en todo asi que bueno les di un preview de lo que puedo hacer y ayudarles con el proyecto**
+

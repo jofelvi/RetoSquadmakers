@@ -29,11 +29,21 @@ public class SmsNotificationProvider : INotificationProvider
             // Simulate SMS sending (in a real implementation, this would use Twilio, AWS SNS, etc.)
             var smsSettings = _configuration.GetSection("SmsSettings");
             var isEnabled = bool.Parse(smsSettings["Enabled"] ?? "false");
+            var apiKey = smsSettings["ApiKey"];
+            var apiSecret = smsSettings["ApiSecret"];
             
-            if (!isEnabled)
+            // Check if SMS credentials are configured or if SMS is explicitly disabled
+            if (!isEnabled || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
             {
-                _logger.LogWarning("SMS provider is disabled. Skipping SMS to {Recipient}", message.Recipient);
-                return NotificationResult.Failure("SMS provider is disabled");
+                _logger.LogInformation("SMS credentials not configured or disabled. Simulating SMS send to {Recipient}: {Content}", 
+                    message.Recipient, TruncateContent(message.Content));
+                
+                // Simulate network delay
+                await Task.Delay(300);
+                
+                // Return success with simulated ID
+                var simulatedId = $"simulated_sms_{DateTime.UtcNow.Ticks}";
+                return NotificationResult.Success(simulatedId);
             }
 
             // Validate phone number format

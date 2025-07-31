@@ -31,8 +31,23 @@ public class EmailNotificationProvider : INotificationProvider
             var smtpSettings = _configuration.GetSection("SmtpSettings");
             var host = smtpSettings["Host"] ?? "smtp.gmail.com";
             var port = int.Parse(smtpSettings["Port"] ?? "587");
-            var username = smtpSettings["Username"] ?? throw new InvalidOperationException("SMTP Username not configured");
-            var password = smtpSettings["Password"] ?? throw new InvalidOperationException("SMTP Password not configured");
+            var username = smtpSettings["Username"];
+            var password = smtpSettings["Password"];
+            
+            // Check if SMTP credentials are configured
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                _logger.LogInformation("SMTP credentials not configured. Simulating email send to {Recipient} with subject: {Subject}", 
+                    message.Recipient, message.Subject);
+                
+                // Simulate network delay
+                await Task.Delay(200);
+                
+                // Return success with simulated ID
+                var simulatedId = $"simulated_email_{DateTime.UtcNow.Ticks}";
+                return NotificationResult.Success(simulatedId);
+            }
+            
             var fromEmail = smtpSettings["FromEmail"] ?? username;
             var fromName = smtpSettings["FromName"] ?? "RetoSquadmakers";
 

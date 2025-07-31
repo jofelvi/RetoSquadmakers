@@ -95,7 +95,6 @@ public class ChisteService : BaseService<Chiste, int>, IChisteService
             {
                 _logger.LogError(ex, "Error processing chiste created event for chiste {ChisteId}: {Error}", 
                     createdChiste.Id, ex.Message);
-                // Don't rethrow - notification failures shouldn't affect chiste creation
             }
         }
 
@@ -116,7 +115,6 @@ public class ChisteService : BaseService<Chiste, int>, IChisteService
         if (entity.AutorId <= 0)
             throw new ArgumentException("El ID del autor debe ser válido");
 
-        // Validar que el autor existe
         var autor = await _usuarioRepository.GetByIdAsync(entity.AutorId);
         if (autor == null)
             throw new InvalidOperationException($"No se encontró el usuario con ID {entity.AutorId}");
@@ -129,9 +127,6 @@ public class ChisteService : BaseService<Chiste, int>, IChisteService
         var chiste = await GetByIdAsync(id);
         if (chiste == null)
             throw new InvalidOperationException($"No se encontró el chiste con ID {id}");
-
-        // Aquí podrían agregarse más validaciones de dominio
-        // Por ejemplo, no permitir eliminar chistes con muchos likes, etc.
 
         await base.ValidateDeleteAsync(id);
     }

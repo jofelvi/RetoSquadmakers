@@ -6,7 +6,7 @@ using retoSquadmakers.Domain.Services;
 using retoSquadmakers.Infrastructure.ExternalServices;
 using System.Security.Claims;
 
-namespace retoSquadmakers.Controllers;
+namespace retoSquadmakers.Presentation.Controllers;
 
 [ApiController]
 [Route("api/chistes")]
@@ -311,7 +311,22 @@ public class ChistesController : ControllerBase
             if (chiste == null)
                 return NotFound(new { error = "Chiste no encontrado" });
 
-            return Ok(chiste);
+            // Create a DTO to avoid circular reference issues
+            var chisteDto = new
+            {
+                id = chiste.Id,
+                texto = chiste.Texto,
+                fechaCreacion = chiste.FechaCreacion,
+                origen = chiste.Origen,
+                autor = chiste.Autor != null ? new
+                {
+                    id = chiste.Autor.Id,
+                    nombre = chiste.Autor.Nombre,
+                    email = chiste.Autor.Email
+                } : null
+            };
+
+            return Ok(chisteDto);
         }
         catch (Exception ex)
         {

@@ -72,9 +72,6 @@ public class UsuarioService : BaseService<Usuario, int>, IUsuarioService
         if (usuario == null)
             throw new InvalidOperationException($"No se encontró el usuario con ID {id}");
 
-        // Aquí podrían agregarse más validaciones de dominio
-        // Por ejemplo, no permitir eliminar administradores, etc.
-
         await base.ValidateDeleteAsync(id);
     }
 }

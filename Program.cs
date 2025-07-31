@@ -167,6 +167,13 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Seed notification templates
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await retoSquadmakers.Infrastructure.Data.NotificationTemplateSeeder.SeedNotificationTemplatesAsync(dbContext);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
